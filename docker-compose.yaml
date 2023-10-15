@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: "docker.io/library/mariadb:latest"
+    container_name: mariadb-demo
+    command: [ "mariadbd",
+                "--defaults-extra-file=$HOME/db-server/options/ssl.cnf"]
+    ports:
+      - "3306:3306"
+    volumes:
+      - type: bind
+        source: ./db-server/options
+        target: $HOME/db-server/options
+      - type: bind
+        source: ./db-server/certs
+        target: /etc/certs/
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: "password"
+      MARIADB_USER: "mariadb_user"
+      MARIADB_PASSWORD: "password"
+      MARIADB_DATABASE: "demo"
+
+  demo-run:
+    image: "mariadb-demo:latest"
+    container_name: "mariadb-demo-runner"
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
